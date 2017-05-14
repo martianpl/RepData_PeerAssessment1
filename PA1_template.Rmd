@@ -1,13 +1,14 @@
 ---
 title: "Reproducible Research: Peer Assessment 1"
-output: 
-  html_document:
-    keep_md: true
+output:
+  md_document:
+    variant: markdown_github
 ---
 
 
 ## Loading and preprocessing the data
 
+``` {r}
 library(knitr)
 library(dplyr) 
 library(lubridate)
@@ -18,8 +19,11 @@ data <- read.csv("activity.csv", header = TRUE, sep = ',', colClasses = c("numer
 
 data$date <- ymd(data$date)
 
+```
+
 ## What is mean total number of steps taken per day?
 
+``` {r}
 steps <- data %>%
   filter(!is.na(steps)) %>%
   group_by(date) %>%
@@ -34,8 +38,17 @@ ggplot(steps, aes(x = steps)) +
 mean_steps <- mean(steps$steps, na.rm = TRUE)
 median_steps <- median(steps$steps, na.rm = TRUE)
 
+mean_steps
+median_steps
+
+```
+
+The mean number of steps is 10766.
+The median number of steps is 10765.
+
 ## What is the average daily activity pattern?
 
+``` {r}
 interval <- data %>%
   filter(!is.na(steps)) %>%
   group_by(interval) %>%
@@ -46,7 +59,16 @@ ggplot(interval, aes(x=interval, y=steps)) +
   
 interval[which.max(interval$steps),]
 
+```
+
+The maximum number of steps for a 5-minute interval was 206 steps.
+
+The 5-minute interval which had the maximum number of steps was the 835 interval.
+
+
 ## Imputing missing values
+
+```{r}
 
 sum(is.na(data$steps))
 
@@ -58,6 +80,11 @@ avg_interval <- tapply(data_full$steps, data_full$interval, mean, na.rm=TRUE, si
 data_full$steps[nas] <- avg_interval[as.character(data_full$interval[nas])]
 
 sum(is.na(data_full$steps))
+
+```
+The total number of rows with steps = "NA" is 2304.
+
+```{r}
 
 steps_full <- data_full %>%
   filter(!is.na(steps)) %>%
@@ -73,9 +100,11 @@ mean_steps_full <- mean(steps_full$steps, na.rm = TRUE)
 median_steps_full <- median(steps_full$steps, na.rm = TRUE)
 
 
+```
 
 ## Are there differences in activity patterns between weekdays and weekends?
 
+```{r}
 data_full <- mutate(data_full, weektype = ifelse(weekdays(data_full$date) == "Saturday" | weekdays(data_full$date) == "Sunday", "weekend", "weekday"))
 data_full$weektype <- as.factor(data_full$weektype)
 head(data_full)
@@ -87,5 +116,7 @@ s <- ggplot(interval_full, aes(x=interval, y=steps, color = weektype)) +
   geom_line() +
   facet_wrap(~weektype, ncol = 1, nrow=2)
 print(s)
+
+```
 
 From the two plots it seems that the test object is more active on weekend
